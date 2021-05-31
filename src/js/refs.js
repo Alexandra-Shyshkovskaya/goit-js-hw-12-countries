@@ -1,4 +1,6 @@
-export default {
-  input: document.querySelector("input-country"),
-  countryList: document.querySelector(".countryList"),
-};
+export default function getRefs() {
+  return {
+    input: document.querySelector('.country-input'),
+    country: document.querySelector('.countryList'),
+  };
+}

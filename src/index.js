@@ -1,28 +1,48 @@
+import countryCardTpl from './templates/country.hbs';
+import countriesListTpl from './templates/countries.hbs';
+import _debounce from 'lodash.debounce';
+import API from './js/fetchCountries';
+import getRefs from './js/refs';
+import toastify from './js/pnotify';
+
+
 import './sass/main.scss';
-import fetchCountry from './js/fetchCountries';
-import notifications from "./js/notification.js";
-import fetchCountriesMarkup from "./js/markup.js";
-import refs from "./js/refs.js";
-import debounce from "lodash.debounce";
 
-const {
-  errorNotification,
-  noticeNotification,
-  emptyNotification,
-} = notifications;
+const refs = getRefs();
 
-const { input, countryList } = refs;
+refs.input.addEventListener('input', _debounce(onCountryInput, 500));
 
-input.addEventListener('input', debounce(countryRequest, 500));
-
-noticeNotification();
-
-function countryRequest() {
-    countryList.innerHTML = '';
-    const searchQuery = input.value;
-    if (!searchQuery) {
-        emptyNotification();
-        return;
-    }
-    fetchCountry(searchQuery).then(fetchCountriesMarkup).catch(errorNotification);
+function onCountryInput(e) {
+  clearCountryInput();
+  if (!e.target.value) {
+    return;
+  }
+  API.fetchCountryByName(e.target.value)
+    .then(country => {
+      if (country.length < 2) {
+        renderCountryCard(country);
+        toastify.onSuccess(country);
+      } else if (country.length < 10 && country.length > 1) {
+        renderCountriesList(country);
+      } else {
+        toastify.onFetchMore(country);
+      }
+    })
+    .catch(toastify.onFetchError);
 }
+
+function renderCountryCard(country) {
+  const markup = countryCardTpl(country);
+  refs.country.insertAdjacentHTML('beforeend', markup);
+}
+
+function renderCountriesList(countries) {
+  const markup = countriesListTpl(countries);
+  refs.country.insertAdjacentHTML('beforeend', markup);
+}
+
+function clearCountryInput() {
+  refs.country.innerHTML = '';
+}
+
+
