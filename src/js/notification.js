@@ -38,7 +38,7 @@ function error() {
     duration: 2000,
     gravity: 'bottom', 
     position: 'right',
-    stopOnFocus: true, // Prevents dismissing of toast on hover
+    stopOnFocus: true, 
     className: 'info info-error',
     offset: {
       x: 300, 
